@@ -84,6 +84,8 @@ def fetch_upstream_git_submodules(clone_dir, kwargs):
 def fetch_upstream_svn(url, clone_dir, revision, cwd, kwargs):
     """Fetch sources via svn."""
     command = ['svn', 'checkout', '--non-interactive', url, clone_dir]
+    if kwargs['username'] and kwargs['password']:
+        command = ['svn', 'checkout', '--username', kwargs['username'], '--password', kwargs['password'], '--non-interactive', url, clone_dir]
     if revision:
         command.insert(4, '-r%s' % revision)
     safe_run(command, cwd, interactive=sys.stdout.isatty())
@@ -123,6 +125,8 @@ def update_cache_git(url, clone_dir, revision):
 def update_cache_svn(url, clone_dir, revision):
     """Update sources via svn."""
     command = ['svn', 'update']
+    if kwargs['username'] and kwargs['password']:
+        command = ['svn', 'update', '--username', kwargs['username'], '--password', kwargs['password']]
     if revision:
         command.insert(3, "-r%s" % revision)
     safe_run(command, cwd=clone_dir, interactive=sys.stdout.isatty())
@@ -853,6 +857,13 @@ def parse_args():
     parser.add_argument('--history-depth',
                         help='Obsolete osc service parameter that does '
                              'nothing')
+    parser.add_argument('--username',
+                        help='Username for authenticated subversion repositories. '
+                             'For other repositories use "scheme://user:password@host.domain:port/repo"')
+    parser.add_argument('--password',
+                        help='Password for authenticated subversion repositories. '
+                             'For other repositories use "scheme://user:password@host.domain:port/repo"')
+
     args = parser.parse_args()
 
     # basic argument validation
